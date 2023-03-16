@@ -1,0 +1,24 @@
+image: docker:stable
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_NAME: registry.gitlab.com/myusername/myproject
+  DOCKER_HOST: tcp://docker:2375
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker build -t $IMAGE_NAME .
+
+deploy:
+  stage: deploy
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN registry.gitlab.com
+    - docker push $IMAGE_NAME
